@@ -1,0 +1,105 @@
+RSA*    rsa=0;
+BIGNUM* bignum=0;
+
+std::vector<char> key_public;
+std::vector<char> key_private;
+do
+{
+        const int bits=2048;
+        const BN_ULONG e = RSA_F4;
+        int result=0;
+
+        //генерация ключей, заполнение структуры RSA
+        bignum = BN_new();
+        result = BN_set_word(bignum,e);
+        if(result != 1)break;
+
+        rsa = RSA_new();
+        result = RSA_generate_key_ex(rsa, bits, bignum, 0);
+        if(result != 1)break;
+
+        //сохранение в файлы
+        {
+                //public
+                if(BIO* file=BIO_new_file("public.pem", "w+"))
+                {
+                        result=PEM_write_bio_RSAPublicKey(file, rsa);
+                        if(result != 1)
+                        {
+                                //файл не создан
+                        }
+                        BIO_free_all(file );
+                }
+
+                //private
+                if(BIO* file=BIO_new_file("private.pem", "w+"))
+                {
+                        result=PEM_write_bio_RSAPrivateKey(file, rsa, 0, 0, 0, 0, 0);
+                        if(result != 1)
+                        {
+                                //файл не создан
+                        }
+                        BIO_free_all(file);
+                }
+        }
+
+        //сохранение в память
+        {
+                //public
+                {
+                        BIO* memo=BIO_new(BIO_s_mem());
+                        result = PEM_write_bio_RSAPublicKey(memo, rsa);
+                        if(result != 1)
+                        {
+                                //не удалось записать в память
+                                BIO_free(memo);
+                        }
+                        else
+                        {
+                                BUF_MEM* bufptr=0;
+                                BIO_get_mem_ptr(memo, &bufptr);
+                                BIO_set_close(memo, BIO_NOCLOSE);
+                                BIO_free(memo);
+
+                                if(bufptr->length && bufptr->data)
+                                {
+                                        key_public.assign(bufptr->data,bufptr->data+bufptr->length);
+                                }
+
+                                BUF_MEM_free(bufptr);
+                        }
+
+                }
+
+                //private
+                {
+                        BIO* memo=BIO_new(BIO_s_mem());
+                        result = PEM_write_bio_RSAPrivateKey(memo, rsa, 0, 0, 0, 0, 0);
+                        if(result != 1)
+                        {
+                                //не удалось записать в память
+                                BIO_free(memo);
+                        }
+                        else
+                        {
+                                BUF_MEM* bufptr=0;
+                                BIO_get_mem_ptr(memo, &bufptr);
+                                BIO_set_close(memo, BIO_NOCLOSE);
+                                BIO_free(memo);
+
+                                if(bufptr->length && bufptr->data)
+                                {
+                                        key_private.assign(bufptr->data,bufptr->data+bufptr->length);
+                                }
+
+                                BUF_MEM_free(bufptr);
+                        }
+                }
+        }
+
+        int iii=1;
+}while(0);
+
+//чистка выделенной памяти
+if(rsa       )RSA_free    (rsa   );rsa=0;
+if(bignum    )BN_free     (bignum);bignum=0;
