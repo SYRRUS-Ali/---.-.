@@ -1,0 +1,96 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+
+// Singleton class for the client
+class Client {
+private:
+    static Client* instance;
+    Client() {}
+
+public:
+    static Client* getInstance() {
+        if (instance == nullptr) {
+            instance = new Client();
+        }
+        return instance;
+    }
+
+    void connectToServer() {
+        // Код соединения с сервером
+        std::cout << "Connected to the server." << std::endl;
+    }
+
+    int getShortestDistance(const std::vector<std::vector<int>>& graph) {
+       // Код для вычисления кратчайшего расстояния между вершинами
+ // получается путем деления графа пополам
+        int n = graph.size();
+        std::vector<std::vector<int>> dist(n, std::vector<int>(n, INT_MAX));
+
+        // Инициализируем матрицу расстояний
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i == j) {
+                    dist[i][j] = 0;
+                } else {
+                    dist[i][j] = graph[i][j];
+                }
+            }
+        }
+
+       // Алгоритм Флойда-Уоршалла для нахождения кратчайшего расстояния
+        for (int k = 0; k < n; k++) {
+            for (int i = 0; i < n; i++) {
+                for (int j = 0; j < n; j++) {
+                    if (dist[i][k] != INT_MAX && dist[k][j] != INT_MAX && dist[i][k] + dist[k][j] < dist[i][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                    }
+                }
+            }
+        }
+
+        // Найдите кратчайшее расстояние между вершинами, полученное путем деления графа пополам
+        int shortestDistance = INT_MAX;
+        for (int i = 0; i < n / 2; i++) {
+            for (int j = n / 2; j < n; j++) {
+                shortestDistance = std::min(shortestDistance, dist[i][j]);
+            }
+        }
+
+        return shortestDistance;
+    }
+};
+
+Client* Client::instance = nullptr;
+
+int main() {
+	setlocale (0, "");
+    // Создание экземпляра клиента
+    Client* client = Client::getInstance();
+
+    // Соединение с сервером
+    client->connectToServer();
+
+    // Получите от пользователя количество вершин в графе
+    int numVertices;
+    std::cout << "Enter the number of vertices in the graph: ";
+    std::cin >> numVertices;
+
+    // Получите данные графика от пользователя
+    std::vector<std::vector<int>> graph(numVertices, std::vector<int>(numVertices));
+    std::cout << "Enter the graph data (space-separated distances):" << std::endl;
+    for (int i = 0; i < numVertices; i++) {
+        for (int j = 0; j < numVertices; j++) {
+            std::cin >> graph[i][j];
+        }
+    }
+
+    // Получите кратчайшее расстояние между вершинами
+    int shortestDistance = client->getShortestDistance(graph);
+
+    // Вывод результата
+    std::cout << "Кратчайшее расстояние между вершинами, полученное путем деления графа пополам: " << shortestDistance << std::endl;
+
+    return 0;
+}
