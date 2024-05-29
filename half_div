@@ -1,0 +1,40 @@
+#include <iostream>
+#include <cmath>
+
+// Пример функции f(x) = x^2 - 2
+double f(double x) {
+    return x * x - 2;
+}
+
+// Функция деления пополам для нахождения корня уравнения
+double bisection(double a, double b, double epsilon) {
+    if (f(a) * f(b) >= 0) {
+        std::cerr << "f(a) и f(b) должны иметь разные знаки" << std::endl;
+        return NAN;
+    }
+
+    double c = a;
+    while ((b - a) >= epsilon) {
+        c = (a + b) / 2;
+        if (f(c) == 0.0) {
+            break;
+        }
+        else if (f(c) * f(a) < 0) {
+            b = c;
+        }
+        else {
+            a = c;
+        }
+    }
+    return c;
+}
+
+int main() {
+    setlocale(LC_ALL , "Russian");
+    double a = 0;
+    double b = 2;
+    double epsilon = 0.0001;
+    double root = bisection(a, b, epsilon);
+    std::cout << "Найденный корень: " << root << std::endl;
+    return 0;
+}
