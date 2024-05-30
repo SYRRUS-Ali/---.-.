@@ -1,40 +1,33 @@
+#include <vector>
+#include <numeric>
+#include <algorithm>
 #include <iostream>
-#include <cmath>
+ 
+using namespace std; 
 
-// Пример функции f(x) = x^2 - 2
-double f(double x) {
-    return x * x - 2;
+pair<int, int> halfDivide(const vector<int>& numbers) {
+    size_t mid = numbers.size() / 2;
+    int sumFirstHalf = accumulate(numbers.begin(), numbers.begin() + mid, 0);
+    int sumSecondHalf = accumulate(numbers.begin() + mid, numbers.end(), 0);
+    return { sumFirstHalf, sumSecondHalf };
 }
 
-// Функция деления пополам для нахождения корня уравнения
-double bisection(double a, double b, double epsilon) {
-    if (f(a) * f(b) >= 0) {
-        std::cerr << "f(a) и f(b) должны иметь разные знаки" << std::endl;
-        return NAN;
+pair<int, int> halfProduct(const vector<int>& numbers) {
+    size_t mid = numbers.size() / 2;
+    int productFirstHalf = accumulate(numbers.begin(), numbers.begin() + mid, 1, multiplies<int>());
+    int productSecondHalf = accumulate(numbers.begin() + mid, numbers.end(), 1, multiplies<int>());
+    return { productFirstHalf, productSecondHalf };
+    }
+    int main() {
+
+        vector<int> numbers = { 1, 2, 3, 4, 5, 6 };
+
+        auto sumResult = halfDivide(numbers);
+        cout << "Sum of first half: " << sumResult.first << ", second half: " << sumResult.second << endl;
+
+        auto productResult = halfProduct(numbers);
+        cout << "Product of first half: " << productResult.first << ", second half: " << productResult.second << endl;
+
+        return 0;
     }
 
-    double c = a;
-    while ((b - a) >= epsilon) {
-        c = (a + b) / 2;
-        if (f(c) == 0.0) {
-            break;
-        }
-        else if (f(c) * f(a) < 0) {
-            b = c;
-        }
-        else {
-            a = c;
-        }
-    }
-    return c;
-}
-
-int main() {
-    setlocale(LC_ALL , "Russian");
-    double a = 0;
-    double b = 2;
-    double epsilon = 0.0001;
-    double root = bisection(a, b, epsilon);
-    std::cout << "Найденный корень: " << root << std::endl;
-    return 0;
-}
