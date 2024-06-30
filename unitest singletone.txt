@@ -1,0 +1,79 @@
+// test_client.cpp
+
+#include <gtest/gtest.h>
+#include "client.h" // Assume the original code is in a header file named client.h
+
+// Test fixture for Client tests
+class ClientTest : public ::testing::Test {
+protected:
+    void SetUp() override {
+        // Reset the singleton instance before each test
+        Client::instance = nullptr;
+    }
+
+    void TearDown() override {
+        // Clean up the singleton instance after each test
+        delete Client::instance;
+        Client::instance = nullptr;
+    }
+};
+
+// Test getInstance method
+TEST_F(ClientTest, GetInstance) {
+    Client* client1 = Client::getInstance();
+    Client* client2 = Client::getInstance();
+
+    ASSERT_NE(client1, nullptr);
+    ASSERT_EQ(client1, client2);
+}
+
+// Test connectToServer method
+TEST_F(ClientTest, ConnectToServer) {
+    Client* client = Client::getInstance();
+    
+    // Redirect cout to a stringstream for testing
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    client->connectToServer();
+
+    // Restore cout
+    std::cout.rdbuf(old);
+
+    ASSERT_EQ(buffer.str(), "Connected to the server.\n");
+}
+
+// Test getShortestDistance method
+TEST_F(ClientTest, GetShortestDistance) {
+    Client* client = Client::getInstance();
+
+    // Test case 1: Simple 2x2 graph
+    std::vector<std::vector<int>> graph1 = {
+        {0, 1},
+        {1, 0}
+    };
+    ASSERT_EQ(client->getShortestDistance(graph1), 1);
+
+    // Test case 2: 4x4 graph
+    std::vector<std::vector<int>> graph2 = {
+        {0, 1, 2, 3},
+        {1, 0, 4, 5},
+        {2, 4, 0, 6},
+        {3, 5, 6, 0}
+    };
+    ASSERT_EQ(client->getShortestDistance(graph2), 3);
+
+    // Test case 3: Graph with unreachable vertices
+    std::vector<std::vector<int>> graph3 = {
+        {0, 1, INT_MAX, INT_MAX},
+        {1, 0, INT_MAX, INT_MAX},
+        {INT_MAX, INT_MAX, 0, 1},
+        {INT_MAX, INT_MAX, 1, 0}
+    };
+    ASSERT_EQ(client->getShortestDistance(graph3), INT_MAX);
+}
+
+int main(int argc, char **argv) {
+    ::testing::InitGoogleTest(&argc, argv);
+    return RUN_ALL_TESTS();
+}
