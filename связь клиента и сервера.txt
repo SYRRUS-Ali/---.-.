@@ -1,0 +1,45 @@
+#include <iostream>
+#include <vector>
+#include <stdexcept>
+
+class Singleton {
+private:
+    static Singleton* instance;
+    Singleton() {} // Приватный конструктор
+
+public:
+    static Singleton* getInstance() {
+        if (instance == nullptr) {
+            instance = new Singleton();
+        }
+        return instance;
+    }
+
+    void sendDataToServer(std::vector<int> vector1, std::vector<int> vector2) {
+        // Логика отправки данных на сервер
+        // Расчет кратчайшего расстояния между векторами
+    }
+};
+
+Singleton* Singleton::instance = nullptr;
+
+// Пример сервера для вычисления кратчайшего расстояния
+void calculateShortestDistance() {
+    try {
+        Singleton* singleton = Singleton::getInstance();
+
+        std::vector<int> vector1 = {1, 2, 3};
+        std::vector<int> vector2 = {4, 5, 6};
+
+        singleton->sendDataToServer(vector1, vector2);
+
+    } catch (std::exception& e) {
+        std::cerr << "Ошибка: " << e.what() << std::endl;
+    }
+}
+
+int main() {
+    calculateShortestDistance();
+
+    return 0;
+}
